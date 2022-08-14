@@ -15,6 +15,7 @@ function draw() {
   drawLaser();
   drawAsteroids();
   drawTrackingRecord();
+  drawExplosion();
 }
 
 function frame() {
@@ -25,6 +26,7 @@ function frame() {
   updateAsteroids();
   wanderingStars();
   handleExplosion();
+  updateExplosion();
   draw();
 }
 

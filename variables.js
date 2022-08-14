@@ -41,3 +41,6 @@ var asteroidMovingSpeed = 0.5;
 var wanderingStarsDelay = 20;
 var cometsTimer = 0;
 var trackingRecord = 0;
+var bigBang = [];
+var bigBangMaxRadius = 11;
+var spikesRadius = 5;

@@ -13,6 +13,7 @@ function drawAsteroids() {
     ctx.fillStyle = '#a1936f';
     ctx.beginPath();
     var path=new Path2D();
+    // len-1: the last index of the array
     var cPos=rotateAsteroidCorner(i, asteroids[i].pointsX.length-1, sin, cos);
     path.moveTo(cPos[0], cPos[1]);
     for (var j=0; j<asteroids[i].pointsX.length; j++) {

@@ -1,4 +1,3 @@
-var abc = 1;
 const canvas = document.querySelector('#canvas');
 // if (!canvas.getContext()) {
 //   return;

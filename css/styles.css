@@ -1,0 +1,19 @@
+h2 {
+  padding: 0px;
+  margin: 10px;
+  color: white;
+  font-size: 30px;
+
+}
+p {
+  padding: 0px;
+  margin: 10px;
+  color: white;
+  font-size: 25px;
+
+}
+body {
+  padding: 30px;
+  margin: 10px;
+  background-color: grey;
+}

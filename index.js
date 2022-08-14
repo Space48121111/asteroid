@@ -6,7 +6,6 @@ const canvas = document.querySelector('#canvas');
 
 const ctx = canvas.getContext('2d');
 
-
 var playerX = canvas.width/2;
 var playerY = canvas.height/2;
 

@@ -32,6 +32,7 @@ function drawSpaceship() {
   }
   ctx.fill(path);
 
+  // rendering engine flickering
   var timeOffset = time*2;
   // sin oscillating wave 0-1
   var alpha = (1+Math.sin(timeOffset))*0.5;
@@ -49,16 +50,14 @@ function drawSpaceship() {
   }
 }
 
-
-
-// to make it smooth for each frame
-// the less the distance, the slower it goes
 function interpolate(current, target, speed) {
-  var distance = target - current;
-  if (Math.abs(distance) < 0.0001) {
+  var angleTrajectory = target - current;
+  // ignore the diff once it approaches indefinitely to the target
+  if (Math.abs(angleTrajectory) < 0.0001) {
     return target;
   }
-  return current + distance*Math.min(1, speed);
+  // speed <= 1, at most the target val that it won't over-shoot
+  return current + angleTrajectory*Math.min(1, speed);
 }
 
 function updateRotation() {
@@ -67,15 +66,18 @@ function updateRotation() {
   // } else if (isLeftPressed) {
   //   shipAngle -= revolutionSpeed;
   // }
+
+  // inertial angle
   var targetAngle = shipAngle;
-  if (speedX != 0 || speedY != 0) {
-    targetAngle = (Math.atan2(-speedY, speedX)/Math.PI)*180;
+  if (vectorVelocityX != 0 || vectorVelocityY != 0) {
+    // - neg: going upwards
+    targetAngle = (Math.atan2(-vectorVelocityY, vectorVelocityX)/Math.PI)*180;
     targetAngle += -90;
   }
-  // -180-180 to take the shortest path
+  // turn within -180-180 degrees
   var diff = targetAngle - shipAngle;
   while (diff > 180) {
-    diff -= 360;
+    diff -= 360; // 270-360 = -90
   }
   while (diff < -180) {
     diff += 360;
@@ -83,6 +85,7 @@ function updateRotation() {
   shipAngle = interpolate(shipAngle, shipAngle+diff, revolutionSpeed);
 }
 
+// within the velocity bounds
 function clamp(val, min, max) {
   if (val < min) {
     return min;
@@ -94,64 +97,43 @@ function clamp(val, min, max) {
 }
 
 function updateMovement() {
-  var moveX = 0;
-  var moveY = 0;
+  var dirX = 0;
+  var dirY = 0;
   if (isUpPressed) {
-    moveY = -1;
+    dirY = -1;
   } else if (isDownPressed) {
-    moveY = 1;
+    dirY = 1;
   }
   if (isRightPressed) {
-    moveX = 1;
+    dirX = 1;
   } else if (isLeftPressed) {
-    moveX = -1;
+    dirX = -1;
   }
   // break first then turn
-  speedX *= deAcceleration;
-  speedY *= deAcceleration;
-  speedX += moveX * acceleration;
-  speedY += moveY * acceleration;
-  speedX = clamp(speedX, -maxSpeed, maxSpeed);
-  speedY = clamp(speedY, -maxSpeed, maxSpeed);
+  vectorVelocityX *= deAcceleration;
+  vectorVelocityY *= deAcceleration;
+  vectorVelocityX += dirX * acceleration;
+  vectorVelocityY += dirY * acceleration;
+  vectorVelocityX = clamp(vectorVelocityX, -maxSpeed, maxSpeed);
+  vectorVelocityY = clamp(vectorVelocityY, -maxSpeed, maxSpeed);
 
-  shipX += speedX;
-  shipY += speedY;
+  shipX += vectorVelocityX;
+  shipY += vectorVelocityY;
+
   // edges
   if (shipX < shipRadius) {
     shipX = shipRadius;
-    speedX = 0;
+    vectorVelocityX = 0;
   } else if (shipX > canvas.width-shipRadius) {
     shipX = canvas.width - shipRadius;
-    speedX = 0;
+    vectorVelocityX = 0;
   }
 
   if (shipY < shipRadius) {
     shipY = shipRadius;
-    speedY = 0;
+    vectorVelocityY = 0;
   } else if (shipY > canvas.height-shipRadius) {
     shipY = canvas.height - shipRadius;
-    speedY = 0;
-  }
-}
-
-
-function handleExplosion() {
-  for (var i=asteroids.length-1; i>=0; i--) {
-    var shouldExplode = false;
-    for (var j=laserX.length-1; j>=0; j--) {
-      if (laserX[j]<asteroids[i].asteroidX+asteroidRadiusMax &&
-      laserX[j]>asteroids[i].asteroidX-asteroidRadiusMax &&
-      laserY[j]<asteroids[i].asteroidY+asteroidRadiusMax &&
-      laserY[j]>asteroids[i].asteroidY-asteroidRadiusMax) {
-        shouldExplode = true;
-        laserX.splice(j, 1);
-        laserY.splice(j, 1);
-        laserAngle.splice(j, 1);
-      }
-    }
-    if (shouldExplode) {
-      asteroids.splice(i, 1);
-      trackingRecord += 1;
-    }
+    vectorVelocityY = 0;
   }
 }
